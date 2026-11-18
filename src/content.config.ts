@@ -1,0 +1,44 @@
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+
+const projects = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      summary: z.string(),
+      stack: z.array(z.string()),
+      status: z.enum(['Live', 'In progress', 'Archived']).default('In progress'),
+      repo: z.url().optional(),
+      demo: z.url().optional(),
+      cover: image().optional(),
+      featured: z.boolean().default(false),
+      order: z.number().default(99),
+    }),
+});
+
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+const album = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/album' }),
+  schema: ({ image }) =>
+    z.object({
+      caption: z.string(),
+      category: z.string(),
+      emoji: z.string().default('📷'),
+      image: image().optional(),
+      alt: z.string().default(''),
+    }),
+});
+
+export const collections = { projects, blog, album };

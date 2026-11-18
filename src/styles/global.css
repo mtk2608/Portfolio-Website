@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', sans-serif;
+  --color-bg: #0a0a0f;
+  --color-surface: #13131c;
+  --color-surface-2: #1a1a26;
+  --color-line: #262636;
+  --color-ink: #f2f2f7;
+  --color-muted: #9a9ab0;
+  --color-accent: #b6f24a;
+  --color-accent-2: #8b7bff;
+}
+
+html { background: var(--color-bg); color-scheme: dark; scroll-behavior: smooth; }
+body { @apply bg-bg text-ink font-sans antialiased; }
+h1, h2, h3 { @apply font-display tracking-tight; }
+
+.tile {
+  @apply rounded-3xl border border-line bg-surface p-6 transition duration-300;
+}
+a.tile:hover { @apply -translate-y-1 border-accent/50 bg-surface-2; }
+
+.chip {
+  @apply inline-block rounded-full border border-line px-3 py-1 text-xs text-muted;
+}
+
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+.prose-lite { @apply space-y-4 leading-relaxed text-muted; }
+.prose-lite h2 { @apply mt-8 text-2xl font-semibold text-ink; }
+.prose-lite h3 { @apply mt-6 text-xl font-semibold text-ink; }
+.prose-lite a { @apply text-accent underline-offset-4 hover:underline; }
+.prose-lite strong { @apply text-ink; }
+.prose-lite code { @apply rounded bg-surface-2 px-1.5 py-0.5 text-sm text-ink; }
+
+.glow {
+  background: radial-gradient(60% 60% at 30% 20%, rgb(139 123 255 / 0.35), transparent 70%),
+    radial-gradient(50% 50% at 80% 70%, rgb(182 242 74 / 0.18), transparent 70%);
+  animation: drift 14s ease-in-out infinite alternate;
+}
+@keyframes drift { to { transform: translate3d(2%, 3%, 0) scale(1.08); } }

@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+import me from '../assets/Tayieb.jpeg';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featured = projects.find((p) => p.data.featured) ?? projects[0];
+const posts = (await getCollection('blog', (p) => !p.data.draft)).sort((a, b) => +b.data.date - +a.data.date);
+const album = await getCollection('album');
+const skills = ['C#', '.NET MAUI', 'Azure', 'HTML', 'CSS', 'JavaScript', 'SQLite', 'Office 365'];
+---
+<Base>
+  <section class="relative isolate mb-8 overflow-hidden rounded-[2rem] border border-line px-6 py-16 sm:px-12 sm:py-24">
+    <div class="glow absolute inset-0 -z-10" aria-hidden="true"></div>
+    <p class="mb-4 text-sm text-accent">{SITE.location} · open to opportunities</p>
+    <h1 class="max-w-3xl text-5xl font-semibold leading-[1.05] sm:text-7xl">
+      Hey, I'm {SITE.short}. I build <span class="text-accent">mobile apps</span> &amp; things that make life easier.
+    </h1>
+    <p class="mt-6 max-w-xl text-lg text-muted">{SITE.role} focused on .NET, with a love for lifelong learning and a bit of an entrepreneurial streak.</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/projects" class="rounded-full bg-accent px-6 py-3 font-medium text-black transition hover:opacity-90">See my work</a>
+      <a href="#contact" class="rounded-full border border-line px-6 py-3 transition hover:border-accent">Get in touch</a>
+    </div>
+  </section>
+
+  <section class="grid auto-rows-[minmax(11rem,auto)] gap-4 md:grid-cols-6" aria-label="Highlights">
+    {featured && (
+      <a href={`/projects/${featured.id}`} class="tile group md:col-span-4 md:row-span-2 flex flex-col justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-muted">Featured project</p>
+          <h2 class="mt-2 text-3xl font-semibold">{featured.data.title}</h2>
+          <p class="mt-3 max-w-lg text-muted">{featured.data.summary}</p>
+        </div>
+        <div class="mt-6 flex items-end justify-between gap-4">
+          <div class="flex flex-wrap gap-2">{featured.data.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          {featured.data.cover && <Image src={featured.data.cover} alt="" width={120} class="h-24 w-24 rounded-2xl object-contain transition group-hover:rotate-6" />}
+        </div>
+      </a>
+    )}
+
+    <div class="tile md:col-span-2 md:row-span-2 flex flex-col">
+      <Image src={me} alt="Portrait of Tayieb" width={400} class="mb-4 aspect-square w-full rounded-2xl object-cover" />
+      <h2 class="text-xl font-semibold">About me</h2>
+      <p class="mt-2 text-sm text-muted">Born in 2001 in Cape Town. I thrive on frameworks and languages I'm unfamiliar with, because that is where learning happens.</p>
+      <a href="/about" class="mt-auto pt-4 text-sm text-accent">More about me →</a>
+    </div>
+
+    <a href="/blog" class="tile md:col-span-3">
+      <p class="text-xs uppercase tracking-widest text-muted">Latest post</p>
+      {posts[0] ? (
+        <>
+          <h2 class="mt-2 text-xl font-semibold">{posts[0].data.title}</h2>
+          <p class="mt-2 text-sm text-muted">{posts[0].data.description}</p>
+        </>
+      ) : <p class="mt-2 text-muted">Posts coming soon.</p>}
+    </a>
+
+    <div class="tile md:col-span-3">
+      <p class="text-xs uppercase tracking-widest text-muted">Toolbox</p>
+      <div class="mt-4 flex flex-wrap gap-2">{skills.map((s) => <span class="chip text-ink">{s}</span>)}</div>
+    </div>
+
+    <div id="contact" class="tile md:col-span-6 text-center">
+      <h2 class="text-3xl font-semibold">Let's build something together</h2>
+      <p class="mx-auto mt-2 max-w-md text-muted">Got a project, a question or just want to say hi? My inbox is open.</p>
+      <a href={`mailto:${SITE.email}`} class="mt-6 inline-block rounded-full bg-accent px-6 py-3 font-medium text-black">Say hello</a>
+    </div>
+  </section>
+</Base>
