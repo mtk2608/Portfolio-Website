@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Supply-chain buffer: don't adopt a release until it has been public for a
+    # few days, so compromised versions are usually caught and yanked first.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      astro:
+        patterns: ['astro', '@astrojs/*']
+      dev-dependencies:
+        dependency-type: development
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']
