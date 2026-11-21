@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:secure": "node scripts/serve-dist.mjs",
     "astro": "astro",
     "check": "astro check",
     "test": "astro build && vitest run",

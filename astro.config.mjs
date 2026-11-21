@@ -16,6 +16,9 @@ const site = process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'https://exampl
 
 export default defineConfig({
   site,
+  // Always emit CSS as files, never inline <style> tags, so the CSP can
+  // drop 'unsafe-inline' from style-src.
+  build: { inlineStylesheets: 'never' },
   integrations: [sitemap()],
   vite: { plugins: [tailwindcss()] },
   env: {
