@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { SITE, NAV } from '../site';
+import { SITE_NOINDEX } from 'astro:env/server';
 
 interface Props { title?: string; description?: string }
 const { title, description = SITE.description } = Astro.props;
@@ -16,6 +17,7 @@ const isActive = (href: string) =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{full}</title>
     <meta name="description" content={description} />
+    {SITE_NOINDEX && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:title" content={full} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
