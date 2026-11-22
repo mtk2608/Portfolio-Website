@@ -3,23 +3,31 @@ import { defineConfig, envField } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Cloudflare Pages sets CF_PAGES_BRANCH / CF_PAGES_URL on every build.
-// Production = the `main` branch build; everything else is a preview.
-const branch = process.env.CF_PAGES_BRANCH;
-const isProduction = process.env.DEPLOY_ENV
-  ? process.env.DEPLOY_ENV === 'production'
-  : branch === 'main';
+// Hosting detection. Works on Netlify (CONTEXT / URL / DEPLOY_PRIME_URL) and,
+// as a fallback, Cloudflare Pages (CF_PAGES_BRANCH / CF_PAGES_URL).
+// Production = the live site build; everything else is a preview and is kept out of search engines.
+const env = process.env;
+const isProduction = env.DEPLOY_ENV
+  ? env.DEPLOY_ENV === 'production'
+  : env.CONTEXT
+    ? env.CONTEXT === 'production'
+    : env.CF_PAGES_BRANCH === 'main';
 
-// Set SITE_URL in the Cloudflare *production* environment to your real domain
-// (used for sitemap/RSS/OG tags). Previews fall back to their own pages.dev URL.
-const site = process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'https://example.com';
+// Set SITE_URL to your real domain once you have one (used for sitemap/RSS/OG tags).
+// Otherwise use the host's own URL: Netlify's primary URL for production, or the
+// preview URL for branch/deploy previews.
+const site =
+  env.SITE_URL ??
+  (isProduction ? env.URL : env.DEPLOY_PRIME_URL) ??
+  env.CF_PAGES_URL ??
+  'https://example.com';
 
 export default defineConfig({
   site,
   // Old multi-page URLs now live as sections on the landing page.
   redirects: {
     '/about': '/#about',
-    '/projects': '/#projects',
+    '/projects': '/#projects',
   },
   integrations: [sitemap()],
   vite: { plugins: [tailwindcss()] },
