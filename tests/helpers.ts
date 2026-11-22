@@ -36,5 +36,5 @@ export function frontmatter(src: string): Record<string, string> {
 export const files = (dir: string, ext: string) =>
   readdirSync(join(ROOT, dir)).filter((f) => f.endsWith(ext));
 
-/** Routes the site currently serves. */
-export const ROUTES = ['/', '/about', '/projects', '/projects/hangman', '/blog', '/blog/hello-world'];
+/** Real pages the site serves (the old /about, /projects, /blog URLs are redirects). */
+export const ROUTES = ['/', '/projects/hangman', '/blog/hello-world'];

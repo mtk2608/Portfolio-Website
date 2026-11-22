@@ -11,8 +11,8 @@ const { Content, remarkPluginFrontmatter } = await render(p);
 const date = p.data.date.toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 <Base title={p.data.title} description={p.data.description}>
-  <a href="/blog" class="text-sm text-muted hover:text-ink">← All posts</a>
-  <h1 class="mt-4 max-w-3xl text-5xl font-semibold leading-tight">{p.data.title}</h1>
+  <a href="/" class="text-sm text-muted hover:text-ink">← Back home</a>
+  <h1 class="mt-4 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">{p.data.title}</h1>
   <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted">
     <time datetime={p.data.date.toISOString()}>{date}</time>
     {p.data.tags.map((t) => <span class="chip">#{t}</span>)}

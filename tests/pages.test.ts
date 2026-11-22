@@ -24,13 +24,23 @@ describe.each(ROUTES)('page %s', (route) => {
     expect(doc.querySelector('a[href="#main"]')).toBeTruthy();
   });
 
-  it('shows every nav item and marks the current page', () => {
-    const links = [...doc.querySelectorAll('nav[aria-label=Main] a')].filter((a) => a.getAttribute('href') !== '/' || a.textContent?.includes('Home'));
-    const labels = links.map((a) => a.textContent?.trim());
-    NAV.forEach((n) => expect(labels).toContain(n.label));
-    const current = doc.querySelectorAll('nav[aria-label=Main] [aria-current=page]');
-    const expected = NAV.filter((n) => (n.href === '/' ? route === '/' : route === n.href || route.startsWith(n.href + '/')));
-    expect(current.length).toBe(expected.length);
+  it('shows every nav item as a section link, and the logo links home', () => {
+    const links = [...doc.querySelectorAll('nav[aria-label=Main] a[data-section]')];
+    expect(links.map((a) => a.textContent?.trim())).toEqual(NAV.map((n) => n.label));
+    links.forEach((a, i) => expect(a.getAttribute('href')).toBe(NAV[i].href));
+    expect(doc.querySelector('nav[aria-label=Main] a[href="/"]')).toBeTruthy();
+  });
+
+  it('shows the thefitdev wordmark as the logo', () => {
+    const logo = doc.querySelector('nav[aria-label=Main] a[href="/"]')!;
+    expect(logo.textContent).toBe('thefitdev');
+    expect(logo.getAttribute('aria-label')).toBe('thefitdev home');
+  });
+
+  it('marks the matching nav item on detail pages only', () => {
+    const current = [...doc.querySelectorAll('nav[aria-label=Main] [aria-current=page]')].map((a) => a.textContent?.trim());
+    const expected = NAV.filter((n) => n.match && route.startsWith(n.match + '/')).map((n) => n.label);
+    expect(current).toEqual(expected);
   });
 
   it('gives every image an alt attribute', () => {
@@ -63,60 +73,106 @@ describe.each(ROUTES)('page %s', (route) => {
   });
 });
 
-describe('home page', () => {
+describe('landing page', () => {
   const doc = loadPage('/');
+
   it('shows the hero with the owner short name', () => {
     expect(doc.querySelector('h1')?.textContent).toContain(SITE.short);
   });
-  it('links to projects, about, blog and the featured project', () => {
-    const hrefs = [...doc.querySelectorAll('main a')].map((a) => a.getAttribute('href'));
-    expect(hrefs).toEqual(expect.arrayContaining(['/projects', '/about', '/blog', '/projects/hangman']));
+
+  it('has a section for every nav item, in nav order, with a heading', () => {
+    const ids = [...doc.querySelectorAll('main > section[id]')].map((s) => s.id);
+    expect(ids).toEqual(NAV.map((n) => n.section));
+    ids.forEach((id) => {
+      const labelled = doc.getElementById(id)!.getAttribute('aria-labelledby');
+      expect(doc.getElementById(labelled!)?.textContent?.trim(), id).toBeTruthy();
+    });
   });
-  it('has a contact mailto link and a #contact target', () => {
-    expect(doc.querySelector(`a[href="mailto:${SITE.email}"]`)).toBeTruthy();
-    expect(doc.querySelector('#contact')).toBeTruthy();
+
+  it('hero buttons jump to the projects and contact sections', () => {
+    expect(doc.querySelector('a[href="#projects"]')).toBeTruthy();
+    expect(doc.querySelector('a[href="#contact"]')).toBeTruthy();
   });
-  it('lists the toolbox skills', () => {
-    const text = doc.body.textContent ?? '';
-    ['C#', '.NET MAUI', 'Azure', 'SQLite'].forEach((s) => expect(text).toContain(s));
+
+  describe('projects section', () => {
+    const s = doc.getElementById('projects')!;
+    it('lists Hangman linking to its detail page', () => {
+      expect(s.querySelector('a[href="/projects/hangman"]')?.textContent).toContain('Hangman');
+    });
+  });
+
+  describe('experience section', () => {
+    it('contains the timeline', () => {
+      expect(doc.querySelector('#experience #timeline')).toBeTruthy();
+    });
+  });
+
+  describe('hero portrait', () => {
+    it('shows your photo in the hero with alt text, and not again in About', () => {
+      const hero = doc.querySelector('section[aria-label=Introduction]')!;
+      expect(hero.querySelector('img')?.getAttribute('alt')).toBeTruthy();
+      expect(doc.querySelectorAll('#about img').length).toBe(0);
+    });
+  });
+
+  describe('about section', () => {
+    const s = doc.getElementById('about')!;
+    it('shows the community, endurance and hustle cards', () => {
+      const cards = [...s.querySelectorAll('ul[aria-label="Beyond code"] > li h3')].map((h) => h.textContent);
+      expect(cards).toEqual(['Community', 'Endurance', 'Hustle']);
+      expect(s.textContent).toContain('CPT Microsoft Developer User Group');
+      expect(s.textContent).toContain('Ironman');
+    });
+    it('has toolbox, education and certificates', () => {
+      const h3 = [...s.querySelectorAll('h3')].map((h) => h.textContent?.trim());
+      expect(h3).toEqual(expect.arrayContaining(['Toolbox', 'Education', 'Certificates']));
+      ['C#', '.NET MAUI', 'Azure', 'SQLite'].forEach((t) => expect(s.textContent).toContain(t));
+      ['Samsung Innovation Lab', 'Northlink College'].forEach((t) => expect(s.textContent).toContain(t));
+    });
+    it('links the freeCodeCamp certificates', () => {
+      const hrefs = [...s.querySelectorAll('a')].map((a) => a.getAttribute('href') ?? '');
+      expect(hrefs.some((h) => h.includes('foundational-c-sharp-with-microsoft'))).toBe(true);
+      expect(hrefs.some((h) => h.includes('responsive-web-design'))).toBe(true);
+    });
+  });
+
+  describe('contact section', () => {
+    it('has a mailto link to the owner', () => {
+      expect(doc.querySelector(`#contact a[href="mailto:${SITE.email}"]`)).toBeTruthy();
+    });
+  });
+
+  it('no longer has an album', () => {
+    expect(doc.body.textContent?.toLowerCase()).not.toContain('life album');
+    expect(existsSync(distFile('/life'))).toBe(false);
   });
 });
 
-describe('about page', () => {
-  const doc = loadPage('/about');
-  it('has experience, education and certificates sections', () => {
-    const h2 = [...doc.querySelectorAll('h2')].map((h) => h.textContent?.trim());
-    expect(h2).toEqual(expect.arrayContaining(['Experience', 'Education', 'Certificates']));
-  });
-  it('links the freeCodeCamp certificates', () => {
-    const hrefs = [...doc.querySelectorAll('a')].map((a) => a.getAttribute('href') ?? '');
-    expect(hrefs.some((h) => h.includes('foundational-c-sharp-with-microsoft'))).toBe(true);
-    expect(hrefs.some((h) => h.includes('responsive-web-design'))).toBe(true);
-  });
-  it('has a portrait with alt text', () => {
-    expect(doc.querySelector('aside img')?.getAttribute('alt')).toBeTruthy();
+describe('old page URLs redirect to landing sections', () => {
+  it.each([
+    ['/about', '#about'],
+    ['/projects', '#projects'],
+  ])('%s -> /%s', (path, hash) => {
+    const html = readFileSync(distFile(path), 'utf8');
+    expect(html).toContain(`url=/${hash}`);
   });
 });
 
-describe('projects pages', () => {
-  it('lists Hangman on the index', () => {
-    expect(loadPage('/projects').body.textContent).toContain('Hangman');
-  });
-  it('shows the Hangman detail with its GitHub link', () => {
-    const doc = loadPage('/projects/hangman');
+describe('project detail page', () => {
+  const doc = loadPage('/projects/hangman');
+  it('shows Hangman with its GitHub link and a way back', () => {
     expect(doc.querySelector('h1')?.textContent).toBe('Hangman');
     expect(doc.querySelector('a[href="https://github.com/mtk2608/Hangman"]')).toBeTruthy();
+    expect(doc.querySelector('a[href="/#projects"]')).toBeTruthy();
   });
 });
 
-describe('blog pages', () => {
-  it('lists the hello-world post', () => {
-    expect(loadPage('/blog').querySelector('a[href="/blog/hello-world"]')).toBeTruthy();
-  });
-  it('renders the post with a datetime', () => {
-    const doc = loadPage('/blog/hello-world');
+describe('blog post page', () => {
+  const doc = loadPage('/blog/hello-world');
+  it('renders the post with a datetime and a way back', () => {
     expect(doc.querySelector('article')?.textContent?.length).toBeGreaterThan(50);
     expect(doc.querySelector('time[datetime]')).toBeTruthy();
+    expect(doc.querySelector('a[href="/"]')).toBeTruthy();
   });
 });
 
@@ -127,5 +183,8 @@ describe('feeds and static files', () => {
     expect(xml).toContain('<rss');
     expect(xml).toContain('Hello, world');
   });
-  it('ships a favicon', () => expect(existsSync(join(DIST, 'favicon.svg'))).toBe(true));
+  it('ships a favicon and the nav script', () => {
+    expect(existsSync(join(DIST, 'favicon.svg'))).toBe(true);
+    expect(existsSync(join(DIST, 'nav.js'))).toBe(true);
+  });
 });

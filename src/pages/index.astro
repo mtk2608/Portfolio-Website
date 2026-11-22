@@ -2,70 +2,141 @@
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import Timeline from '../components/Timeline.astro';
 import { SITE } from '../site';
 import me from '../assets/Tayieb.jpeg';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const featured = projects.find((p) => p.data.featured) ?? projects[0];
-const posts = (await getCollection('blog', (p) => !p.data.draft)).sort((a, b) => +b.data.date - +a.data.date);
-const album = await getCollection('album');
+
+const beyond = [
+  { title: 'Community', text: 'Member of the CPT Microsoft Developer User Group, learning from and sharing with other developers.' },
+  { title: 'Endurance', text: 'The big goal is an Ironman, with other endurance sports along the way.' },
+  { title: 'Hustle', text: 'Anything I can get my hands on in my spare time, I will look into.' },
+];
 const skills = ['C#', '.NET MAUI', 'Azure', 'HTML', 'CSS', 'JavaScript', 'SQLite', 'Office 365'];
+const certs = [
+  { label: 'Foundational C# with Microsoft', href: 'https://www.freecodecamp.org/certification/MTKamaldien26/foundational-c-sharp-with-microsoft' },
+  { label: 'Responsive Web Design', href: 'https://www.freecodecamp.org/certification/MTKamaldien26/responsive-web-design' },
+  { label: 'Digital Marketing: Grow With Google' },
+];
 ---
 <Base>
-  <section class="relative isolate mb-8 overflow-hidden rounded-[2rem] border border-line px-6 py-16 sm:px-12 sm:py-24">
+  <section class="relative isolate overflow-hidden rounded-[2rem] border border-line px-5 py-10 sm:px-12 sm:py-20 lg:py-24" aria-label="Introduction">
     <div class="glow absolute inset-0 -z-10" aria-hidden="true"></div>
-    <p class="mb-4 text-sm text-accent">{SITE.location} · open to networking</p>
-    <h1 class="max-w-3xl text-5xl font-semibold leading-[1.05] sm:text-7xl">
-      Hey, I'm {SITE.short}. I build <span class="text-accent">mobile apps</span> &amp; things that make life easier.
-    </h1>
-    <p class="mt-6 max-w-xl text-lg text-muted">{SITE.role} focused on .NET, with a love for lifelong learning and a bit of an entrepreneurial streak.</p>
-    <div class="mt-8 flex flex-wrap gap-3">
-      <a href="/projects" class="rounded-full bg-accent px-6 py-3 font-medium text-black transition hover:opacity-90">See my work</a>
-      <a href="#contact" class="rounded-full border border-line px-6 py-3 transition hover:border-accent">Get in touch</a>
+    <div class="grid items-center gap-8 md:grid-cols-[1fr_auto] md:gap-10">
+      <Image
+        src={me}
+        alt="Portrait of Tayieb"
+        width={640}
+        loading="eager"
+        class="size-32 rounded-full border-2 border-accent/60 object-cover shadow-2xl shadow-black/50 sm:size-40 md:order-2 md:size-48 lg:size-72"
+      />
+      <div class="md:order-1">
+        <p class="mb-4 text-sm text-accent">{SITE.location} · open to networking</p>
+        <h1 class="max-w-3xl text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-7xl">
+          Hey, I'm {SITE.short}. I <span class="text-accent">build software</span>, love community &amp; chasing an <span class="text-accent">Ironman</span>.
+        </h1>
+        <p class="mt-5 max-w-xl text-base text-muted sm:mt-6 sm:text-lg">A software developer from Cape Town, part of the CPT Microsoft Developer User Group, with a side project for every spare hour.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#projects" class="rounded-full bg-accent px-6 py-3 font-medium text-black transition hover:opacity-90">See my work</a>
+          <a href="#contact" class="rounded-full border border-line px-6 py-3 transition hover:border-accent">Get in touch</a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="grid auto-rows-[minmax(11rem,auto)] gap-4 md:grid-cols-6" aria-label="Highlights">
-    {featured && (
-      <a href={`/projects/${featured.id}`} class="tile group md:col-span-4 md:row-span-2 flex flex-col justify-between">
-        <div>
-          <p class="text-xs uppercase tracking-widest text-muted">Featured project</p>
-          <h2 class="mt-2 text-3xl font-semibold">{featured.data.title}</h2>
-          <p class="mt-3 max-w-lg text-muted">{featured.data.summary}</p>
+  <section id="projects" class="mt-14 sm:mt-20" aria-labelledby="projects-h">
+    <h2 id="projects-h" class="text-3xl font-semibold sm:text-4xl">Projects</h2>
+    <p class="mt-2 max-w-xl text-muted">Things I build to learn, scratch an itch, or just for fun.</p>
+    <ul class="mt-8 grid gap-4 md:grid-cols-2">
+      {projects.map((p) => (
+        <li>
+          <a href={`/projects/${p.id}`} class="tile group flex h-full flex-col">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <span class="chip mb-3">{p.data.status}</span>
+                <h3 class="text-2xl font-semibold">{p.data.title}</h3>
+              </div>
+              {p.data.cover && <Image src={p.data.cover} alt="" width={96} class="h-20 w-20 object-contain transition group-hover:rotate-6" />}
+            </div>
+            <p class="mt-3 text-muted">{p.data.summary}</p>
+            <div class="mt-auto flex flex-wrap gap-2 pt-5">{p.data.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="experience" class="mt-14 sm:mt-20" aria-labelledby="experience-h">
+    <h2 id="experience-h" class="text-3xl font-semibold sm:text-4xl">Experience</h2>
+    <p class="mt-2 text-muted">Select a role to read more about what I did.</p>
+    <Timeline />
+  </section>
+
+  <section id="about" class="mt-14 sm:mt-20" aria-labelledby="about-h">
+    <div>
+      <div>
+        <div class="grid items-start gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
+          <div>
+            <h2 id="about-h" class="text-3xl font-semibold sm:text-4xl">About me</h2>
+            <div class="prose-lite mt-6 text-base sm:text-lg">
+              <p>Hi, I'm Mogamad Tayieb, a software developer from Cape Town. I love building things and I love the communities around them. Sharing what I know and learning from other people is what I enjoy most about this work.</p>
+              <p>Outside of code, I'm a wannabe amateur endurance athlete. I'm also a big fan of hustle culture: I like having something I'm working toward and putting in the effort to get there.</p>
+            </div>
+
+            <figure class="mt-8 border-l-2 border-accent pl-5">
+              <blockquote class="text-lg italic">“The impediment to action advances action. What stands in the way becomes the way.”</blockquote>
+              <figcaption class="mt-2 text-sm text-muted">— Marcus Aurelius</figcaption>
+            </figure>
+          </div>
+
+          <ul class="grid gap-4" aria-label="Beyond code">
+            {beyond.map((b) => (
+              <li class="rounded-2xl border border-line bg-surface p-5 transition hover:border-accent/50">
+                <h3 class="font-display text-xl font-semibold">{b.title}</h3>
+                <p class="mt-1.5 text-muted">{b.text}</p>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div class="mt-6 flex items-end justify-between gap-4">
-          <div class="flex flex-wrap gap-2">{featured.data.stack.map((s) => <span class="chip">{s}</span>)}</div>
-          {featured.data.cover && <Image src={featured.data.cover} alt="" width={120} class="h-24 w-24 rounded-2xl object-contain transition group-hover:rotate-6" />}
+
+        <h3 class="mt-12 text-sm font-semibold uppercase tracking-widest text-muted">Toolbox</h3>
+        <div class="mt-3 flex flex-wrap gap-2">{skills.map((s) => <span class="chip text-ink">{s}</span>)}</div>
+
+        <div class="mt-8 grid gap-x-8 gap-y-8 lg:grid-cols-2">
+          <div>
+            <h3 class="text-sm font-semibold uppercase tracking-widest text-muted">Education</h3>
+            <ul class="mt-3 space-y-3">
+              <li class="rounded-2xl border border-line bg-surface px-4 py-3">
+                <p class="font-semibold leading-snug">Samsung Innovation Lab</p>
+                <p class="text-sm text-muted">University of the Western Cape</p>
+                <p class="mt-1 text-sm">Mobile Application Development · Digital Social Innovation</p>
+              </li>
+              <li class="rounded-2xl border border-line bg-surface px-4 py-3">
+                <p class="font-semibold leading-snug">Northlink College</p>
+                <p class="text-sm text-muted">Mechanical Engineering: N4 Fitting &amp; Machining</p>
+                <p class="mt-1 text-sm">Engineering Science · Mathematics</p>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold uppercase tracking-widest text-muted">Certificates</h3>
+            <ul class="mt-3 space-y-3">
+              {certs.map((c) => (
+                <li class="rounded-2xl border border-line bg-surface px-4 py-3 text-sm">
+                  {c.href ? <a class="text-accent underline-offset-4 hover:underline" href={c.href} rel="noopener noreferrer">{c.label}</a> : c.label}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </a>
-    )}
-
-    <div class="tile md:col-span-2 md:row-span-2 flex flex-col">
-      <Image src={me} alt="Portrait of Tayieb" width={400} class="mb-4 aspect-square w-full rounded-2xl object-cover" />
-      <h2 class="text-xl font-semibold">About me</h2>
-      <p class="mt-2 text-sm text-muted">Developer, entrepreneur, and endurance athlete. I thrive on the hardest problems, never stop learning, and love empowering others to grow alongside me.</p>
-      <a href="/about" class="mt-auto pt-4 text-sm text-accent">More about me →</a>
+      </div>
     </div>
+  </section>
 
-    <a href="/blog" class="tile md:col-span-3">
-      <p class="text-xs uppercase tracking-widest text-muted">Latest post</p>
-      {posts[0] ? (
-        <>
-          <h2 class="mt-2 text-xl font-semibold">{posts[0].data.title}</h2>
-          <p class="mt-2 text-sm text-muted">{posts[0].data.description}</p>
-        </>
-      ) : <p class="mt-2 text-muted">Posts coming soon.</p>}
-    </a>
-
-    <div class="tile md:col-span-3">
-      <p class="text-xs uppercase tracking-widest text-muted">Toolbox</p>
-      <div class="mt-4 flex flex-wrap gap-2">{skills.map((s) => <span class="chip text-ink">{s}</span>)}</div>
-    </div>
-
-    <div id="contact" class="tile md:col-span-6 text-center">
-      <h2 class="text-3xl font-semibold">Let's build something together</h2>
-      <p class="mx-auto mt-2 max-w-md text-muted">Got a project, a question or just want to say hi? My inbox is open.</p>
-      <a href={`mailto:${SITE.email}`} class="mt-6 inline-block rounded-full bg-accent px-6 py-3 font-medium text-black">Say hello</a>
-    </div>
+  <section id="contact" class="tile mt-14 text-center sm:mt-20" aria-labelledby="contact-h">
+    <h2 id="contact-h" class="text-2xl font-semibold sm:text-3xl">Let's connect</h2>
+    <p class="mx-auto mt-2 max-w-md text-muted">Got a project, a question or just want to say hi? My inbox is open.</p>
+    <a href={`mailto:${SITE.email}`} class="mt-6 inline-block rounded-full bg-accent px-6 py-3 font-medium text-black">Say hello</a>
   </section>
 </Base>

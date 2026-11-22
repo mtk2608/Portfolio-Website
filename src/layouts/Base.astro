@@ -7,8 +7,9 @@ interface Props { title?: string; description?: string }
 const { title, description = SITE.description } = Astro.props;
 const full = title ? `${title} · ${SITE.short}` : SITE.name;
 const path = Astro.url.pathname;
-const isActive = (href: string) =>
-  href === '/' ? path === '/' : path === href || path.startsWith(href + '/');
+// On detail pages (/projects/x, /blog/x) highlight the matching nav item.
+// On the landing page, /nav.js scroll-spy sets aria-current as sections come into view.
+const isActive = (match?: string) => !!match && (path === match || path.startsWith(match + '/'));
 ---
 <!doctype html>
 <html lang="en">
@@ -28,22 +29,23 @@ const isActive = (href: string) =>
   <body class="min-h-screen">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-black">Skip to content</a>
     <header class="sticky top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4" aria-label="Main">
-        <a href="/" class="font-display text-lg font-semibold">{SITE.short}<span class="text-accent">.</span></a>
-        <ul class="flex items-center gap-1 text-sm">
+      <nav class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3 sm:py-4" aria-label="Main">
+        <a href="/" aria-label={`${SITE.alias.main}${SITE.alias.accent} home`} class="font-display text-lg font-semibold">{SITE.alias.main}<span class="text-accent">{SITE.alias.accent}</span></a>
+        <ul class="no-scrollbar -mx-2 flex w-full items-center gap-0.5 overflow-x-auto px-2 text-sm sm:mx-0 sm:w-auto sm:gap-1 sm:overflow-visible sm:px-0">
           {NAV.map((n) => (
             <li>
               <a
                 href={n.href}
-                aria-current={isActive(n.href) ? 'page' : undefined}
-                class:list={['rounded-full px-3 py-1.5 transition hover:text-ink', isActive(n.href) ? 'bg-surface-2 text-ink' : 'text-muted']}
+                data-section={n.section}
+                aria-current={isActive(n.match) ? 'page' : undefined}
+                class="block whitespace-nowrap rounded-full px-2.5 py-1.5 text-muted transition sm:px-3 hover:text-ink aria-[current]:bg-surface-2 aria-[current]:text-ink"
               >{n.label}</a>
             </li>
           ))}
         </ul>
       </nav>
     </header>
-    <main id="main" class="mx-auto max-w-6xl px-5 py-10"><slot /></main>
+    <main id="main" class="mx-auto max-w-6xl px-5 py-8 sm:py-10"><slot /></main>
     <footer class="mx-auto max-w-6xl border-t border-line/60 px-5 py-8 text-sm text-muted">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <p>© {new Date().getFullYear()} {SITE.name} · {SITE.location}</p>
@@ -54,5 +56,6 @@ const isActive = (href: string) =>
         </div>
       </div>
     </footer>
+    <script is:inline src="/nav.js" defer></script>
   </body>
 </html>
