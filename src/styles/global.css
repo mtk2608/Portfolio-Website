@@ -35,6 +35,15 @@ a.tile:hover { @apply -translate-y-1 border-accent/50 bg-surface-2; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
+/* Leave room for the sticky header when jumping to a section */
+section[id] { scroll-margin-top: 7rem; }
+@media (min-width: 640px) { section[id] { scroll-margin-top: 5.5rem; } }
+
+/* Never let one wide element push the whole page sideways */
+body { overflow-x: clip; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 .prose-lite { @apply space-y-4 leading-relaxed text-muted; }
 .prose-lite h2 { @apply mt-8 text-2xl font-semibold text-ink; }
 .prose-lite h3 { @apply mt-6 text-xl font-semibold text-ink; }

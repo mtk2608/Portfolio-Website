@@ -43,12 +43,3 @@ describe('blog content', () => {
   });
 });
 
-describe('album content', () => {
-  const list = files('src/content/album', '.json');
-  it('has entries', () => expect(list.length).toBeGreaterThan(0));
-  it.each(list)('%s is valid JSON with caption and category', (f) => {
-    const j = JSON.parse(read('src/content/album', f));
-    expect(j.caption).toBeTruthy();
-    expect(j.category).toBeTruthy();
-  });
-});

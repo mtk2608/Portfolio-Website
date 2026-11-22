@@ -29,16 +29,4 @@ const blog = defineCollection({
   }),
 });
 
-const album = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/album' }),
-  schema: ({ image }) =>
-    z.object({
-      caption: z.string(),
-      category: z.string(),
-      emoji: z.string().default('📷'),
-      image: image().optional(),
-      alt: z.string().default(''),
-    }),
-});
-
-export const collections = { projects, blog, album };
+export const collections = { projects, blog };

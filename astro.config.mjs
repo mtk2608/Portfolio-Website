@@ -16,6 +16,11 @@ const site = process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'https://exampl
 
 export default defineConfig({
   site,
+  // Old multi-page URLs now live as sections on the landing page.
+  redirects: {
+    '/about': '/#about',
+    '/projects': '/#projects',
+  },
   integrations: [sitemap()],
   vite: { plugins: [tailwindcss()] },
   env: {
